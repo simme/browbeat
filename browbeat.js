@@ -2,7 +2,7 @@
 // # Browbeat
 //
 
-var Browbeat = (function () {
+(function () {
   var HEARTBEAT_KEY      = '_browbeat_heartbeat';
   var ELECTION_KEY       = '_browbeat_election';
   var ELECTION_START_KEY = '_browbeat_election_start';
@@ -227,8 +227,24 @@ var Browbeat = (function () {
     }
   };
 
-  return Browbeat;
-}());
+  // -------------------------------------------------------------------------
 
-window.browbeat = new Browbeat();
+  //
+  // ## Export Module
+  //
+  (function () {
+    var hasDefine = typeof define === 'function' && define.amd;
+    var hasExport = typeof exports !== 'undefined';
+
+    if (hasDefine) {
+      define('Browbeat', Browbeat);
+    }
+    else if (hasExport) {
+      exports = Browbeat;
+    }
+    else {
+      window.Browbeat = Browbeat;
+    }
+  }());
+}());
 
