@@ -179,7 +179,7 @@
     this.log('Became master');
     var self = this;
     this.isMaster = true;
-    this.emit('browbeatWonElection');
+    this.emit('wonElection');
 
     if (this.store) {
       this.heartbeatTimer = setInterval(function heartbeat() {
@@ -214,7 +214,7 @@
   Browbeat.prototype.resign = function browbeatResign() {
     this.id       = Math.random() * 1000;
     this.isMaster = false;
-    this.emit('browbeatResigned');
+    this.emit('resigned');
     clearInterval(this.heartbeatTimer);
     this.becomeSlave();
   };
@@ -227,7 +227,7 @@
   Browbeat.prototype.becomeSlave = function browbeatBecomeSlave() {
     this.log('Became slave');
     this.isMaster = false;
-    this.emit('browbeatLostElection');
+    this.emit('lostElection');
     var self = this;
     clearTimeout(this.heartbeatTimer);
     this.heartbeatTimer = setTimeout(function () {
