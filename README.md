@@ -62,6 +62,38 @@ information to help you determine the current state.
 
 **This section is expanding, hang on for more documentation.**
 
+## Events
+
+_Browbeat_ implements it's own custom event emitter. You can subsrive to events
+by calling the `on()` method.
+
+```javascript
+var bb = new Browbeat();
+bb.on('wonElection', function () {
+  // This window won the election. Establish socket connections etc.
+});
+```
+
+### Available Events
+
+* **master**, emitted when someone sent a message to the master. Will only be
+triggered on the master window.
+* **slave**, emitted when someone sent a message to all slaves. Will not be
+triggered on the master.
+* **broadcast**, emitted when someone sends a message to everybody.
+* **sentMessage**, emitted everytime someone sends a message to anybody.
+* **wonElection**, emitted on the window that one the election.
+* **resigned**, triggered on the master if it resigns (when the `resign()`
+method is called).
+* **lostElection**, emitted on all the windows that didn't win the election.
+* **voting**, emitted when the window registers a vote during an election.
+* **electionInitiated**, emitted when a new election begins.
+* **electionConcluded**, emitted when an election has concluded.
+
+**Custom events** can be sent by calling the `sendMessage()` method. The
+method takes two arguments; _message_ and _data_. Message is the event that
+will be triggered on any other open window.
+
 ## Browser Support
 
 Should support all major browsers and IE8+.
