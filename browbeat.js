@@ -243,6 +243,7 @@
   Browbeat.prototype.castVote = function browbeatVote() {
     clearTimeout(this.sanityTimer);
     this.log('Casting vote');
+    this.emit('voting');
     var votes = this.store.getItem(ELECTION_KEY);
     votes = votes ? votes.split(',') : [];
     votes.push(this.id);
@@ -267,6 +268,7 @@
   //
   Browbeat.prototype.startElection = function browbeatStartElection() {
     this.log('Initiating election');
+    this.emit('electionInitiated');
 
     var self = this;
     this.store.removeItem(CURRENT_KEY);
@@ -274,6 +276,7 @@
     this.castVote();
     this.store.setItem(ELECTION_START_KEY, (new Date()).getTime());
     setTimeout(function endElection() {
+      self.emit('electionConcluded');
       var candidates = self.store.getItem(ELECTION_KEY);
       candidates = candidates ? candidates.split(',') : [self.id];
       var winner = Math.max.apply(Math, candidates);
@@ -367,6 +370,7 @@
 
     var key = MSG_PREFIX + '~' + msg.timestamp + '~' + Math.random();
     this.store.setItem(key, JSON.stringify(msg));
+    this.emit('sentMessage', [message, data]);
   };
 
   // -------------------------------------------------------------------------
