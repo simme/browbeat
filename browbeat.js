@@ -212,7 +212,8 @@
   // Assigns a new ID to avoid the same outcome after a vote.
   //
   Browbeat.prototype.resign = function browbeatResign() {
-    this.id       = Math.random() * 1000;
+    if (!this.master) return;
+    this.id = Math.random() * 1000;
     this.isMaster = false;
     this.emit('resigned');
     clearInterval(this.heartbeatTimer);
