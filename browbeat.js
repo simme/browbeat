@@ -333,6 +333,7 @@
     for (var i in this.listeners[e]) {
       if (this.listeners[e][i] === handler) {
         this.listeners[e].splice(i, 1);
+        break;
       }
     }
   };
