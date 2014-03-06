@@ -8,6 +8,7 @@
   var ELECTION_KEY       = '_browbeat_election';
   var ELECTION_START_KEY = '_browbeat_election_start';
   var CURRENT_KEY        = '_browbeat_currentMaster';
+  var MSG_PREFIX         = '_browbeat_msg';
   var KEY_PREFIX         = '_browbeat_';
 
   //
@@ -31,8 +32,10 @@
     this.heartbeatTTL = 2000;
     // For how long will the election be running?
     this.electionTime = 2000;
-    // Set to `true` 
+    // Set to `true` to recieve debug output.
     this.debug        = false;
+    // Maximum number of messages to garbage collect on each run.
+    this.gcLimit      = 100;
 
     for (var i in options) {
       if (typeof this[i] !== 'undefined') this[i] = options[i];
@@ -43,6 +46,7 @@
     this.isMaster        = false;
     this.sanityTimer     = null;
     this.heartbeatTimer  = null;
+    this.gcTimer         = null;
     this.listeners       = {};
     this.heartbeatOffset = Math.random() * 10 + 500;
 
@@ -121,16 +125,16 @@
       if (event.oldValue === null) {
         clearTimeout(this.heartbeatTimer);
         clearTimeout(this.sanityTimer);
-        this.castVote();
+        return this.castVote();
       }
     }
 
     if (key === CURRENT_KEY) {
       if (event.newValue === this.id.toString()) {
-        this.becomeMaster();
+        return this.becomeMaster();
       }
       else {
-        this.becomeSlave();
+        return this.becomeSlave();
       }
     }
 
@@ -141,10 +145,13 @@
       this.heartbeatTimer = setTimeout(function () {
         self.startElection();
       }, this.heartbeatTTL + this.heartbeatOffset);
+      return;
     }
 
-
-    //this.log('browbeat event', event);
+    if (key.indexOf(MSG_PREFIX) === 0) {
+      console.log(event);
+      return;
+    }
   };
 
   // -------------------------------------------------------------------------
@@ -159,9 +166,29 @@
     var self = this;
     this.isMaster = true;
     this.emit('browbeatWonElection');
-    this.heartbeatTimer = setInterval(function heartbeat() {
-      self.store.setItem(HEARTBEAT_KEY, (new Date()).getTime());
-    }, this.heartbeatTTL / 2);
+
+    if (this.store) {
+      this.heartbeatTimer = setInterval(function heartbeat() {
+        self.store.setItem(HEARTBEAT_KEY, (new Date()).getTime());
+      }, this.heartbeatTTL / 2);
+
+      // Garbage collect messages older then 2 seconds
+      this.gcTimer = setInterval(function garbageCollect() {
+        var now = (new Date()).getTime();
+        var len = self.store.length;
+        for (var i = len; i >= 0; i--) {
+          if (i > self.gcLimit) break;
+          var key = self.store.key(i);
+          if (key && key.indexOf(MSG_PREFIX) === 0) {
+            var parts = key.split('~');
+            if (now - parseInt(parts[1], 10) > 2000) {
+              self.store.removeItem(key);
+              console.log('collected', key);
+            }
+          }
+        }
+      }, Math.random() * 20000);
+    }
   };
 
   //
@@ -272,6 +299,36 @@
     for (var i in listeners[e]) {
       listeners[e][i](data);
     }
+  };
+
+  // -------------------------------------------------------------------------
+
+  //
+  // ## Broadcast
+  //
+  // Broadcast a message to _all_ windows, including the sender.
+  //
+  Browbeat.prototype.broadcast = function browbeatBroadcast(message) {
+    this.emit('broadcast', message);
+    this.sendMessage('broadcast', message);
+  };
+
+  //
+  // ## Send Message
+  //
+  // Sends a message on the "bus" to other tabs. The message is written to the
+  // `localStorage`. The message will be garbage collected by the master at
+  // some point.
+  //
+  Browbeat.prototype.sendMessage = function browbeatSend(message, data) {
+    var msg = {
+      message: message,
+      data: data,
+      timestamp: (new Date()).getTime()
+    };
+
+    var key = MSG_PREFIX + '~' + msg.timestamp + '~' + Math.random();
+    this.store.setItem(key, JSON.stringify(msg));
   };
 
   // -------------------------------------------------------------------------
