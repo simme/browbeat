@@ -318,6 +318,24 @@
     }
   };
 
+  //
+  // ## Remove Event Listener
+  //
+  // Removes the given event listener from the given event. The function
+  // supplied here must be the exact same function supplied to `on()`.
+  //
+  Browbeat.prototype.off = function browbeatEventOff(e, handler) {
+    if (!this.listeners[e]) {
+      this.listeners[e] = [];
+    }
+
+    for (var i in this.listeners[e]) {
+      if (this.listeners[e][i] === handler) {
+        this.listeners[e].splice(i, 1);
+      }
+    }
+  };
+
   // -------------------------------------------------------------------------
 
   //
