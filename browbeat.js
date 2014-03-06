@@ -149,7 +149,8 @@
     }
 
     if (key.indexOf(MSG_PREFIX) === 0) {
-      console.log(event);
+      var data = JSON.parse(event.newValue);
+      this.emit(data.message, data.data);
       return;
     }
   };
