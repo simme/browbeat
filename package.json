@@ -1,0 +1,27 @@
+{
+  "name": "browbeat",
+  "description": "Elect a master browser window.",
+  "version": "0.0.1",
+  "keywords": ["browser", "browserify", "bully", "localStorage"],
+  "maintainers": [
+    {
+      "name": "Simon Ljungberg",
+      "email": "hi@iamsim.me",
+      "web": "http://iamsim.me"
+    }
+  ],
+  "bugs": "https://github.com/simme/browbeat/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "git", 
+      "url": "https://github.com/simme/browbeat.git"
+    }
+  ]
+}
+
