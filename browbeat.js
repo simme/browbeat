@@ -3,43 +3,69 @@
 //
 
 (function () {
+  // "Constants" for keys used in `localStorage`.
   var HEARTBEAT_KEY      = '_browbeat_heartbeat';
   var ELECTION_KEY       = '_browbeat_election';
   var ELECTION_START_KEY = '_browbeat_election_start';
   var CURRENT_KEY        = '_browbeat_currentMaster';
   var KEY_PREFIX         = '_browbeat_';
 
+  //
+  // ## Constructor
+  //
+  // Creates a new browbeat instance. Creating more then one Browbeat instance
+  // per window is not recommended since storage events are not triggered on
+  // the tab that initiated the change in `localStorage`. Hence the message
+  // bus is broken.
+  //
+  // * **options**, an object of options. Available options are the properties
+  //   assigned to `this` below.
+  //
   var Browbeat = function Browbeat(options) {
-    if (!this instanceof Browbeat) {
-      return new Browbeat(options);
-    }
+    if (!this instanceof Browbeat) { return new Browbeat(options); }
 
     options = options || {};
+
+    // How long to wait for a heartbeat before initiating a new election.
+    // The actual heartbeat will be half of this value.
+    this.heartbeatTTL = 2000;
+    // For how long will the election be running?
+    this.electionTime = 2000;
+    // Set to `true` 
+    this.debug        = false;
+
+    for (var i in options) {
+      if (this[i]) this[i] = options[i];
+    }
 
     this.id              = Math.random() * 1000;
     this.store           = window.localStorage || false;
     this.isMaster        = false;
     this.sanityTimer     = null;
     this.heartbeatTimer  = null;
-    this.heartbeatTTL    = 2000;
-    this.heartbeatOffset = Math.random() * 10 + 500;
-    this.electionTime    = 2000;
     this.listeners       = {};
-    this.debug           = false;
-
-    for (var i in options) {
-      if (this[i]) this[i] = options[i];
-    }
+    this.heartbeatOffset = Math.random() * 10 + 500;
 
     this.init();
   };
 
+  //
+  // ## Log
+  //
+  // Debug function for console.logging.
+  //
   Browbeat.prototype.log = function () {
     var args = Array.prototype.slice.call(arguments, 0);
     args.unshift('[Browbeat]');
     if (this.debug) console.log.apply(console, args);
   };
 
+  //
+  // ## Init
+  //
+  // Initializes the current Browbeat instance. Setups up event listeners and
+  // checks the current state and acts accordingly.
+  //
   Browbeat.prototype.init = function browbeatInit() {
     this.log('ID:', this.id);
     // No store means no support, make it the master
@@ -57,7 +83,7 @@
       window.attachEventListener('storage', handler);
     }
 
-    // Check for ongoing election
+    // Check for ongoing election.
     var now = (new Date()).getTime();
     var lastHearbeat = this.store.getItem(HEARTBEAT_KEY) || 0;
     var election = this.store.getItem(ELECTION_KEY);
@@ -71,7 +97,7 @@
       this.log('Found fresh heartbeat');
       return this.becomeSlave();
     }
-    // Start election
+    // Start election.
     else {
       return this.startElection();
     }
@@ -138,13 +164,24 @@
     }, this.heartbeatTTL / 2);
   };
 
+  //
+  // ## Resign
+  //
+  // Resigns presidency and let the other windows initiate a new election.
+  // Assigns a new ID to avoid the same outcome after a vote.
+  //
   Browbeat.prototype.resign = function browbeatResign() {
+    this.id       = Math.random() * 1000;
     this.isMaster = false;
+    this.emit('browbeatResigned');
     clearInterval(this.heartbeatTimer);
+    this.becomeSlave();
   };
 
   //
   // ## Become Slave
+  //
+  // Did not win election. Monitor heartbeat and react to dead master.
   //
   Browbeat.prototype.becomeSlave = function browbeatBecomeSlave() {
     this.log('Became slave');
@@ -160,7 +197,7 @@
   //
   // ## Cast Vote
   //
-  // Add this browbeat's id to the pool of candidates.
+  // Register as a candidate in the election.
   //
   Browbeat.prototype.castVote = function browbeatVote() {
     clearTimeout(this.sanityTimer);
@@ -241,6 +278,8 @@
 
   //
   // ## Export Module
+  //
+  // Try to be a good citizen in whatever environment we find ourselves.
   //
   (function () {
     var hasDefine = typeof define === 'function' && define.amd;
