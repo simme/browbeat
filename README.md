@@ -64,6 +64,35 @@ information to help you determine the current state.
 
 **This section is expanding, hang on for more documentation.**
 
+## API
+
+Most of the Browbeat API is internal and you should mostly interact with it by
+listening to events. There are a few methods you need to be aware of though.
+
+### `resign()`
+
+Resign will only work on the current master. It'll trigger the event `resigned`
+on the master and stop it's own heartbeat. Which in turn will lead to a new
+election being initiated.
+
+### `on(_event_, _handler_)`
+
+Register an event listener with Browbeat. The `name` is the name of the event
+you want to listen for. `handler` is the function you want to be triggered
+when the event is emitted.
+
+The handler will be passed any additional data provided by the event.
+
+### `off(_event_, _handler_)`
+
+Removes the given handler from the given event. `hanlder` must be a reference
+to the exact same function as was given to `on()`.
+
+### `broadcast(_message_)`
+### `messageMaster(_message_)`
+### `messageSlave(_message_)`
+### `sendMessage(_message_, _data_)`
+
 ## Events
 
 _Browbeat_ implements it's own custom event emitter. You can subsrive to events
