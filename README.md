@@ -3,6 +3,16 @@
 Elect a master window using the
 [Bully algorithm](http://en.wikipedia.org/wiki/Bully_algorithm).
 
+__This is a very early release. Not quite recommended for production.__
+
+## Why?
+
+Imagine you have a site where it's common for users to open multiple tabs.
+Maybe you have some realtime functionality or something that requires a lot of
+AJAX requests or similar. Instead of maintaing one socket or having
+one message queue (for AJAX) per tab you can have _one_ window being
+responsible. One sockect connection instead of `n` socket connections.
+
 ## How It Works
 
 _Browbeat_ uses `localStorage` as a message bus for communication between open
@@ -51,6 +61,10 @@ master window.
 information to help you determine the current state.
 
 **This section is expanding, hang on for more documentation.**
+
+## Browser Support
+
+Should support all major browsers and IE8+.
 
 # License
 
