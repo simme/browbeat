@@ -1,0 +1,24 @@
+{
+  "name": "browbeat",
+  "version": "0.0.1",
+  "homepage": "https://github.com/simme/browbeat",
+  "authors": [
+    "Simon Ljungberg <hi@iamsim.me>"
+  ],
+  "description": "Elect a master window using the Bully algorithm.",
+  "main": "browbeat.js",
+  "keywords": [
+    "browser",
+    "browserify",
+    "bully",
+    "localStorage"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
