@@ -57,6 +57,8 @@ are:
 a new election. The actual heartbeat interval will be half of this.
 * **electionTime**, how long to run the election (in ms) before picking a new
 master window.
+* **gcLimit**, upper limit on amount of messages that may be garbage collected
+everytime the collector runs.
 * **debug**, when set to `true` _Browbeat_ will output a tiny amount of debug
 information to help you determine the current state.
 
