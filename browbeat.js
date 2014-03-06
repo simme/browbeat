@@ -35,7 +35,7 @@
     this.debug        = false;
 
     for (var i in options) {
-      if (this[i]) this[i] = options[i];
+      if (typeof this[i] !== 'undefined') this[i] = options[i];
     }
 
     this.id              = Math.random() * 1000;
