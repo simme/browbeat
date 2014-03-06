@@ -9,7 +9,13 @@
   var CURRENT_KEY        = '_browbeat_currentMaster';
   var KEY_PREFIX         = '_browbeat_';
 
-  var Browbeat = function Browbeat() {
+  var Browbeat = function Browbeat(options) {
+    if (!this instanceof Browbeat) {
+      return new Browbeat(options);
+    }
+
+    options = options || {};
+
     this.id              = Math.random() * 1000;
     this.store           = window.localStorage || false;
     this.isMaster        = false;
@@ -19,7 +25,11 @@
     this.heartbeatOffset = Math.random() * 10 + 500;
     this.electionTime    = 2000;
     this.listeners       = {};
-    this.debug           = true;
+    this.debug           = false;
+
+    for (var i in options) {
+      if (this[i]) this[i] = options[i];
+    }
 
     this.init();
   };
