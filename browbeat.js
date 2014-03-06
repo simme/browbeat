@@ -150,7 +150,20 @@
 
     if (key.indexOf(MSG_PREFIX) === 0) {
       var data = JSON.parse(event.newValue);
-      this.emit(data.message, data.data);
+      switch (data.message) {
+        case 'master':
+          if (this.isMaster) { this.emit('master', data.data); }
+          break;
+        case 'slave':
+          if (!this.isMaster) { this.emit('slave', data.data); }
+          break;
+        case 'broadcast':
+          this.emit('broadcast', data.data);
+          break;
+        default:
+          this.emit(data.message, data.data);
+          break;
+      }
       return;
     }
   };
@@ -297,8 +310,8 @@
     if (!this.listeners[e]) return;
     data = data || {};
     data.eventName = e;
-    for (var i in listeners[e]) {
-      listeners[e][i](data);
+    for (var i in this.listeners[e]) {
+      this.listeners[e][i](data);
     }
   };
 
@@ -312,6 +325,30 @@
   Browbeat.prototype.broadcast = function browbeatBroadcast(message) {
     this.emit('broadcast', message);
     this.sendMessage('broadcast', message);
+  };
+
+  //
+  // ## Message Master
+  //
+  // Sends a message to the master only.
+  //
+  Browbeat.prototype.messageMaster = function browbeatMsgMaster(message) {
+    if (this.isMaster) {
+      this.emit('master', message);
+    }
+    else {
+      this.sendMessage('master', message);
+    }
+  };
+
+  //
+  // ## Message Slaves
+  //
+  // Sends a message to the slaves only.
+  //
+  Browbeat.prototype.messageSlaves = function browbeatMsSlaves(message) {
+    if (!this.isMaster) this.emit('slave', message);
+    this.sendMessage('slave', message);
   };
 
   //
