@@ -62,7 +62,35 @@ everytime the collector runs.
 * **debug**, when set to `true` _Browbeat_ will output a tiny amount of debug
 information to help you determine the current state.
 
-**This section is expanding, hang on for more documentation.**
+### Example
+
+A common usecase would be to manage a single socket connection. You could do
+this by writing something like this:
+
+```javascript
+var bb = new Browbeat();
+
+// If we win an election, establish a socket connection.
+bb.on('wonElection', function won() {
+  var socket = new WebSocket('myhost');
+  socket.onopen = function connectionOpen() {
+    socket.onmessage = function socketMessage(msg) {
+      // Forward socket message to slaves
+      bb.messageSlaves(msg.data);
+
+      // Use data in this window
+      var data = JSON.parse(msg.data);
+      alert(data);
+    }
+  }
+});
+
+// Handle messages from master
+bb.on('slave', function slaveMessage(msg) {
+  var data = JSON.parse(msg.data);
+  alert(data);
+});
+```
 
 ## API
 
