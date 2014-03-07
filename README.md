@@ -89,9 +89,28 @@ Removes the given handler from the given event. `hanlder` must be a reference
 to the exact same function as was given to `on()`.
 
 ### `broadcast(_message_)`
+
+Sends a message to all open windows on the same domain. Will trigger the
+`broadcast` event with the message as the only argument to the handler.
+
 ### `messageMaster(_message_)`
+
+Sends a message to the master. Will trigger the `master` message on the master
+only, the handler recieves the messages.
+
 ### `messageSlave(_message_)`
+
+Sends a message to all slaves. Will trigger the event `slave` on all open
+windows that are not the master. The handler recieves the message as it's only
+argument.
+
 ### `sendMessage(_message_, _data_)`
+
+Let's you trigger an arbitrary event on all windows other then the current one.
+You can use this to dispatch custom events.
+
+Note that _data_ can only be serialized data, ie. you need to stringify JSON
+first or similar.
 
 ## Events
 
