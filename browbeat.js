@@ -152,13 +152,13 @@
       var data = JSON.parse(event.newValue);
       switch (data.message) {
         case 'master':
-          if (this.isMaster) { this.emit('master', data.data); }
+          if (this.isMaster) { this.emit('message', data.data); }
           break;
         case 'slave':
-          if (!this.isMaster) { this.emit('slave', data.data); }
+          if (!this.isMaster) { this.emit('message', data.data); }
           break;
         case 'broadcast':
-          this.emit('broadcast', data.data);
+          this.emit('message', data.data);
           break;
         default:
           this.emit(data.message, data.data);
@@ -346,7 +346,7 @@
   // Broadcast a message to _all_ windows, including the sender.
   //
   Browbeat.prototype.broadcast = function browbeatBroadcast(message) {
-    this.emit('broadcast', message);
+    this.emit('message', message);
     this.sendMessage('broadcast', message);
   };
 
@@ -357,7 +357,7 @@
   //
   Browbeat.prototype.messageMaster = function browbeatMsgMaster(message) {
     if (this.isMaster) {
-      this.emit('master', message);
+      this.emit('message', message);
     }
     else {
       this.sendMessage('master', message);
@@ -370,7 +370,7 @@
   // Sends a message to the slaves only.
   //
   Browbeat.prototype.messageSlaves = function browbeatMsSlaves(message) {
-    if (!this.isMaster) this.emit('slave', message);
+    if (!this.isMaster) this.emit('message', message);
     this.sendMessage('slave', message);
   };
 

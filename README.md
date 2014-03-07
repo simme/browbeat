@@ -119,16 +119,16 @@ to the exact same function as was given to `on()`.
 ### `broadcast(_message_)`
 
 Sends a message to all open windows on the same domain. Will trigger the
-`broadcast` event with the message as the only argument to the handler.
+`message` event with the message as the only argument to the handler.
 
 ### `messageMaster(_message_)`
 
-Sends a message to the master. Will trigger the `master` message on the master
+Sends a message to the master. Will trigger the `message` event on the master
 only, the handler recieves the messages.
 
 ### `messageSlave(_message_)`
 
-Sends a message to all slaves. Will trigger the event `slave` on all open
+Sends a message to all slaves. Will trigger the event `message` on all open
 windows that are not the master. The handler recieves the message as it's only
 argument.
 
@@ -154,11 +154,8 @@ bb.on('wonElection', function () {
 
 ### Available Events
 
-* **master**, emitted when someone sent a message to the master. Will only be
-triggered on the master window.
-* **slave**, emitted when someone sent a message to all slaves. Will not be
-triggered on the master.
-* **broadcast**, emitted when someone sends a message to everybody.
+* **message**, emitted when a message is sent and the current window is a
+reciever of this message.
 * **sentMessage**, emitted everytime someone sends a message to anybody.
 * **wonElection**, emitted on the window that one the election.
 * **resigned**, triggered on the master if it resigns (when the `resign()`
